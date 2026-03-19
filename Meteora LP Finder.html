@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<!-- saved from url=(0100)https://42c30b9a-cb14-485f-90eb-8ba21ba9123c-00-3s52egpj98ilb.worf.replit.dev/meteora_lp_finder.html -->
+<html lang="ru"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meteora LP Finder</title>
+<style>
+:root {
+  --gold:#F5A623;--gold-l:#FFD07A;--gold-d:#8B6914;
+  --bg:#0A0A0A;--bg2:#111111;--bg3:#1A1A1A;
+  --border:#2A2A2A;--border-g:rgba(245,166,35,0.25);
+  --text:#F0F0F0;--text2:#888;
+  --green:#2ECC71;--red:#E74C3C;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
+
+.header{background:var(--bg2);border-bottom:1px solid var(--border-g);padding:16px 24px;display:flex;align-items:center;gap:12px;}
+.logo{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;font-size:16px;flex-shrink:0;}
+.title{font-size:18px;font-weight:600;background:linear-gradient(90deg,var(--gold),var(--gold-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+.main{max-width:1100px;margin:0 auto;padding:20px 24px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+.card.gold{border-color:var(--border-g);}
+.card-title{font-size:11px;font-weight:600;color:var(--gold);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.6px;}
+
+label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;}
+input[type=text],input[type=password],input[type=date],input[type=number]{
+  width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:13px;outline:none;transition:border 0.2s;font-family:inherit;
+}
+input:focus{border-color:var(--gold-d);}
+select{width:100%;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;cursor:pointer;outline:none;}
+select:focus{border-color:var(--gold-d);}
+
+.row{display:flex;gap:10px;margin-top:10px;align-items:flex-end;flex-wrap:wrap;}
+.f{display:flex;flex-direction:column;gap:3px;}
+.f.grow{flex:1;min-width:120px;}
+
+.btn{padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);transition:all 0.15s;white-space:nowrap;}
+.btn:hover{border-color:var(--gold-d);color:var(--gold);}
+.btn:disabled{opacity:0.35;cursor:not-allowed;}
+.btn-gold{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700;}
+.btn-gold:hover{background:var(--gold-l);color:#000;}
+.btn-stop{border-color:var(--red);color:var(--red);background:transparent;}
+.btn-stop:hover{background:rgba(231,76,60,0.1);}
+.btn-ol{border-color:var(--gold-d);color:var(--gold);background:transparent;}
+.btn-ol:hover{background:rgba(245,166,35,0.08);}
+
+/* Filter params row */
+.filter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+.filter-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.filter-title{font-size:10px;color:var(--gold);font-weight:600;text-transform:uppercase;margin-bottom:8px;letter-spacing:0.4px;}
+.tol-row{display:flex;align-items:center;gap:5px;margin-top:5px;}
+.tol-row span{font-size:11px;color:var(--text2);flex-shrink:0;}
+.range-out{font-size:10px;color:var(--gold);margin-top:4px;min-height:13px;}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);}
+.stat-val{font-size:22px;font-weight:600;}
+.stat-val.cg{color:var(--gold);} .stat-val.cv{color:var(--green);} .stat-val.cr{color:var(--red);}
+.stat-lbl{font-size:10px;color:var(--text2);margin-top:2px;text-transform:uppercase;letter-spacing:0.4px;}
+
+.progress{height:3px;background:var(--border);border-radius:2px;margin-bottom:10px;overflow:hidden;}
+.pbar{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));width:0%;transition:width 0.3s;border-radius:2px;}
+.log{font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-family:'Courier New',monospace;min-height:32px;max-height:90px;overflow-y:auto;white-space:pre-wrap;line-height:1.7;}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
+.tbl-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.tbl-scroll{max-height:500px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead{position:sticky;top:0;z-index:2;}
+th{background:var(--bg3);padding:8px 11px;text-align:left;font-weight:600;font-size:10px;color:var(--gold-d);text-transform:uppercase;letter-spacing:0.4px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--gold);}
+td{padding:7px 11px;border-bottom:1px solid var(--border);color:var(--text2);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+td.v{color:var(--text);font-weight:500;}
+td.mono{font-family:'Courier New',monospace;font-size:11px;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+tr.highlight td{background:rgba(245,166,35,0.06);}
+.empty{text-align:center;padding:3rem;color:var(--text2);font-size:13px;}
+.empty-ico{font-size:32px;margin-bottom:10px;}
+.pnl-pos{color:var(--green);font-weight:500;}
+.pnl-neg{color:var(--red);font-weight:500;}
+.hint{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5;}
+.hint a{color:var(--gold-d);text-decoration:none;}
+.hint a:hover{color:var(--gold);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-d);}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr);}.filter-grid{grid-template-columns:1fr;}.main{padding:12px;}}
+</style>
+<style>:is([id*='google_ads_iframe'],[id*='taboola-'],.taboolaHeight,.taboola-placeholder,#top-ad,#credential_picker_container,#credentials-picker-container,#credential_picker_iframe,[id*='google-one-tap-iframe'],#google-one-tap-popup-container,.google-one-tap__module,.google-one-tap-modal-div,#amp_floatingAdDiv,#ez-content-blocker-container) {display:none!important;min-height:0!important;height:0!important;}</style></head>
+<body>
+
+<div class="header">
+  <div class="logo">M</div>
+  <div>
+    <div class="title">Meteora LP Finder</div>
+    <div class="sub">Поиск LP кошельков по параметрам позиции · LP Agent API</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── SECTION 1: COLLECT SETTINGS ── -->
+  <div class="card gold">
+    <div class="card-title">Параметры сбора</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="f">
+        <label>LP Agent API ключ 1 (обязательный)</label>
+        <input type="password" id="lpa_key1" placeholder="Первый ключ от portal.lpagent.io...">
+        <p class="hint">Ключ: <a href="https://portal.lpagent.io/" target="_blank">portal.lpagent.io</a></p>
+      </div>
+      <div class="f">
+        <label>LP Agent API ключ 2 (необязательный)</label>
+        <input type="password" id="lpa_key2" placeholder="Второй ключ (ускоряет в 2×)...">
+      </div>
+      <div class="f">
+        <label>LP Agent API ключ 3 (необязательный)</label>
+        <input type="password" id="lpa_key3" placeholder="Третий ключ (ускоряет в 3×)...">
+      </div>
+      <div class="f">
+        <label>Ссылка на пул (Solscan, Meteora или адрес)</label>
+        <input type="text" id="pool_url" placeholder="https://solscan.io/account/АДРЕС..." oninput="parsePool()">
+        <p class="hint" id="pool_hint">Адрес пула будет извлечён автоматически</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-top:12px;">
+      <div class="f">
+        <label>Статус позиций</label>
+        <select id="pos_status">
+          <option value="">Все позиции</option>
+          <option value="Close">Только закрытые</option>
+          <option value="Open">Только открытые</option>
+        </select>
+      </div>
+      <div class="f">
+        <label>Дата входа — от</label>
+        <input type="date" id="c_date_from">
+      </div>
+      <div class="f">
+        <label>Дата входа — до</label>
+        <input type="date" id="c_date_to">
+      </div>
+      <div class="f">
+        <label>Мин. Profit USD</label>
+        <input type="number" id="pnl_min" placeholder="Напр: 10" step="0.01">
+      </div>
+      <div class="f">
+        <label>Сортировка</label>
+        <select id="sort_by">
+          <option value="inputNative">По TVL</option>
+          <option value="pnl">По PnL</option>
+          <option value="collectedFee">По Fees</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-gold" id="btn_start" onclick="collectStart()">▶ Загрузить позиции</button>
+      <button class="btn btn-stop" id="btn_stop" onclick="collectStop()" disabled="">■ Стоп</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: FILTER PARAMS ── -->
+  <div class="card">
+    <div class="card-title">Фильтр по параметрам позиции (со скрина metlex.io)</div>
+    <p style="font-size:11px;color:var(--text2);margin-bottom:10px;">
+      Заполни поля — таблица обновится мгновенно. Пустое поле = параметр не учитывается.
+    </p>
+
+    <div class="filter-grid">
+
+      <div class="filter-card">
+        <div class="filter-title">Profit USD (выводы + fees)</div>
+        <input type="number" id="f_profit" placeholder="50" step="0.01" oninput="applyFilters()">
+        <div class="tol-row">
+          <span>±</span>
+          <input type="number" id="f_profit_tol" value="20" min="0" max="100" style="width:52px;" oninput="applyFilters()">
+          <span>%</span>
+        </div>
+        <div class="range-out" id="r_profit">—</div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">TVL USD (сумма входа)</div>
+        <input type="number" id="f_tvl" placeholder="345" min="0" step="0.01" oninput="applyFilters()">
+        <div class="tol-row">
+          <span>±</span>
+          <input type="number" id="f_tvl_tol" value="20" min="0" max="100" style="width:52px;" oninput="applyFilters()">
+          <span>%</span>
+        </div>
+        <div class="range-out" id="r_tvl">—</div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-title">Время в позиции (HH:MM:SS)</div>
+        <div style="display:flex;gap:4px;">
+          <input type="number" id="f_dur_h" placeholder="12" min="0" step="1" style="flex:1;" oninput="calcDur()">
+          <span style="font-size:11px;color:var(--text2);align-self:center;">ч</span>
+          <input type="number" id="f_dur_m" placeholder="05" min="0" max="59" step="1" style="flex:1;" oninput="calcDur()">
+          <span style="font-size:11px;color:var(--text2);align-self:center;">м</span>
+          <input type="number" id="f_dur_s" placeholder="11" min="0" max="59" step="1" style="flex:1;" oninput="calcDur()">
+          <span style="font-size:11px;color:var(--text2);align-self:center;">с</span>
+        </div>
+        <input type="hidden" id="f_dur_total">
+        <div class="tol-row">
+          <span>±</span>
+          <input type="number" id="f_dur_tol" value="20" min="0" max="100" style="width:52px;" oninput="applyFilters()">
+          <span>%</span>
+        </div>
+        <div class="range-out" id="r_dur">—</div>
+      </div>
+
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <button class="btn" onclick="clearFilters()">✕ Сбросить фильтры</button>
+      <span style="font-size:11px;color:var(--text2);" id="filter_info"></span>
+    </div>
+  </div>
+
+  <!-- ── STATS + TABLE ── -->
+  <div class="stats">
+    <div class="stat"><div class="stat-val cg" id="st_total">0</div><div class="stat-lbl">Всего позиций</div></div>
+    <div class="stat"><div class="stat-val cv" id="st_filtered">0</div><div class="stat-lbl">После фильтра</div></div>
+    <div class="stat"><div class="stat-val" id="st_wallets">0</div><div class="stat-lbl">Уникальных кошельков</div></div>
+    <div class="stat"><div class="stat-val" id="st_status">—</div><div class="stat-lbl">Статус загрузки</div></div>
+  </div>
+
+  <div class="progress"><div class="pbar" id="pbar"></div></div>
+  <div class="log" id="log">Готов. Вставь API ключ и ссылку на пул, затем нажми "Загрузить позиции".</div>
+
+  <div class="toolbar">
+    <input type="text" id="tbl_search" placeholder="Поиск по адресу кошелька..." style="max-width:260px;" oninput="renderTable()">
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="tbl_found" style="font-size:12px;color:var(--text2);"></span>
+      <button class="btn btn-ol" id="btn_csv" style="display:none;" onclick="downloadCsv()">⬇ CSV</button>
+    </div>
+  </div>
+
+  <div class="tbl-wrap"><div class="tbl-scroll">
+    <table>
+      <colgroup>
+        <col style="width:38px"><col style="width:30%">
+        <col style="width:100px"><col style="width:90px">
+        <col style="width:90px"><col style="width:90px">
+        <col style="width:80px"><col style="width:70px">
+      </colgroup>
+      <thead><tr>
+        <th>#</th>
+        <th>Кошелёк</th>
+        <th onclick="sortBy(&#39;profitUsd&#39;)" title="Сортировать">Profit USD ↕</th>
+        <th onclick="sortBy(&#39;tvlUsd&#39;)" title="Сортировать">TVL USD ↕</th>
+        <th onclick="sortBy(&#39;pnlUsd&#39;)" title="Сортировать">PnL USD ↕</th>
+        <th onclick="sortBy(&#39;ageHour&#39;)" title="Сортировать">Время ↕</th>
+        <th>Пара</th>
+        <th>Статус</th>
+      </tr></thead>
+      <tbody id="tbody">
+        <tr><td colspan="8" class="empty"><div class="empty-ico">◎</div>Нажми "Загрузить позиции"</td></tr>
+      </tbody>
+    </table>
+  </div></div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+const LPA   = 'https://api.lpagent.io/open-api/v1';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const el    = id => document.getElementById(id);
+const v     = id => el(id) ? el(id).value.trim() : '';
+
+let allData    = [];   // все загруженные позиции
+let filtered   = [];   // после применения фильтров
+let running    = false;
+let logs       = [];
+let sortField  = 'profitUsd';
+let sortDir    = -1;   // -1 = desc, 1 = asc
+
+function addLog(msg) {
+  logs.push(msg); if(logs.length > 80) logs.shift();
+  const e = el('log'); e.textContent = logs.join('\n'); e.scrollTop = e.scrollHeight;
+}
+function setBar(p) { el('pbar').style.width = Math.min(Math.max(p,0),100) + '%'; }
+function fmtH(h) {
+  if (!h || h <= 0) return '0ч 0м 0с';
+  const hh = Math.floor(h);
+  const mm = Math.floor((h - hh) * 60);
+  const ss = Math.round(((h - hh) * 60 - mm) * 60);
+  return `${hh}ч ${mm}м ${ss}с`;
+}
+
+// ══════════════════════════════════════
+// POOL URL PARSER
+// ══════════════════════════════════════
+function parsePool() {
+  const url  = v('pool_url');
+  const m    = url.match(/[1-9A-HJ-NP-Za-km-z]{32,44}/g);
+  const addr = m ? m[m.length - 1] : null;
+  const hint = el('pool_hint');
+  if (addr && addr.length >= 32) {
+    hint.textContent = '✓ ' + addr.slice(0,8) + '...' + addr.slice(-6);
+    hint.style.color = 'var(--green)';
+  } else {
+    hint.textContent = 'Адрес пула будет извлечён автоматически';
+    hint.style.color = 'var(--text2)';
+  }
+}
+function getPoolAddr() {
+  const url = v('pool_url');
+  const m   = url.match(/[1-9A-HJ-NP-Za-km-z]{32,44}/g);
+  return m ? m[m.length - 1] : null;
+}
+
+// ══════════════════════════════════════
+// COLLECT
+// ══════════════════════════════════════
+function collectStop() {
+  running = false;
+  el('btn_start').disabled = false;
+  el('btn_stop').disabled  = true;
+  addLog('Остановлено. Позиций: ' + allData.length);
+  el('st_status').textContent = 'Стоп';
+}
+
+
+// Parse one position from LP Agent response
+function parsePos(pos) {
+  if (!pos || !pos.owner) return null;
+  const pnlUsd    = parseFloat(pos.pnl?.value)   || 0;
+  const feeUsd    = parseFloat(pos.collectedFee)  || 0;
+  const tvlUsd    = parseFloat(pos.inputValue)    || 0;
+  const profitUsd = pnlUsd + feeUsd;
+  const pnlPct    = (parseFloat(pos.pnl?.percent) || 0) * 100;
+  const ageHour   = parseFloat(pos.ageHour)       || 0;
+  return {
+    owner: pos.owner,
+    position:  pos.position || pos.tokenId || '',
+    tvlUsd, pnlUsd, profitUsd, pnlPct, feeUsd, ageHour,
+    status:    pos.status    || '—',
+    pairName:  pos.pairName  || '—',
+    createdAt: pos.createdAt || '',
+    closeAt:   pos.closeAt   || pos.close_At || '',
+  };
+}
+
+async function collectStart() {
+  const keys = [v('lpa_key1'), v('lpa_key2'), v('lpa_key3')].filter(k => k.length > 0);
+  const pool = getPoolAddr();
+  if (!keys.length) { addLog('Нужен хотя бы один LP Agent API ключ!'); return; }
+  if (!pool)        { addLog('Укажи ссылку на пул!'); return; }
+
+  allData = []; filtered = []; running = true; logs = [];
+  el('btn_start').disabled = true;
+  el('btn_stop').disabled  = false;
+  el('btn_csv').style.display = 'none';
+  ['st_total','st_filtered','st_wallets'].forEach(id => el(id).textContent = '0');
+  el('st_status').textContent = '⏳';
+  el('log').textContent = '';
+  setBar(0); renderTable();
+
+  const status   = v('pos_status');
+  const pnlMin   = v('pnl_min');
+  const orderBy  = v('sort_by') || 'inputNative';
+  const dateFrom = v('c_date_from');
+  const dateTo   = v('c_date_to');
+  const cutFrom  = dateFrom ? new Date(dateFrom + 'T00:00:00Z').getTime() : 0;
+  const cutTo    = dateTo   ? new Date(dateTo   + 'T23:59:59Z').getTime() : 0;
+
+  const baseParams = { pageSize: '20', order_by: orderBy, sort_order: 'desc' };
+  if (status)   baseParams.status        = status;
+  if (pnlMin)   baseParams.pnl_threshold = pnlMin;
+  if (dateFrom) baseParams.from_date     = dateFrom;
+  if (dateTo)   baseParams.to_date       = dateTo;
+
+  addLog(`Пул: ${pool.slice(0,8)}...${pool.slice(-6)}`);
+  addLog(`Статус: ${status||'все'} | Даты: ${dateFrom||'—'} → ${dateTo||'—'} | Ключей: ${keys.length}`);
+
+  // Helper: fetch one page
+  async function fetchPage(key, page) {
+    const p = new URLSearchParams({...baseParams, page: String(page)});
+    const r = await fetch(`${LPA}/pools/${pool}/positions?${p}`, {
+      headers: { 'x-api-key': key }
+    });
+    return r;
+  }
+
+  // Helper: check if position is in date range, returns 'ok'|'skip'|'stop'
+  function checkDate(pos) {
+    if (!cutFrom && !cutTo) return 'ok';
+    if (!pos.createdAt) return 'ok';
+    const ts = new Date(pos.createdAt).getTime();
+    if (cutTo   && ts > cutTo)   return 'skip';  // newer than range
+    if (cutFrom && ts < cutFrom) return 'stop';  // older than range
+    return 'ok';
+  }
+
+  // Step 1: get total pages from first request
+  let totalPages = 1;
+  try {
+    addLog('Получаем количество страниц...');
+    const r0 = await fetchPage(keys[0], 1);
+    if (r0.status === 401) { addLog('Ошибка 401: Неверный API ключ 1.'); running=false; }
+    else if (r0.status === 403) { addLog('Ошибка 403: Нет доступа к эндпоинту.'); running=false; }
+    else if (!r0.ok) { addLog('Ошибка ' + r0.status); running=false; }
+    else {
+      const d0 = await r0.json();
+      const pg  = d0?.data?.pagination || d0?.pagination || {};
+      totalPages = pg.totalPages || 1;
+      const totalCount = pg.totalCount || pg.total || 0;
+      const estMin = Math.ceil(totalPages / keys.length * 12.5 / 60);
+      addLog(`Всего: ${totalCount} позиций | Страниц: ${totalPages} | ~${estMin} мин с ${keys.length} ключ(ами)`);
+
+      // Process page 1
+      const pos0 = d0?.data?.positions || d0?.positions || [];
+      for (const pos of pos0) {
+        const parsed = parsePos(pos);
+        if (!parsed) continue;
+        const dc = checkDate(parsed);
+        if (dc === 'skip') continue;
+        if (dc === 'stop') { running = false; break; }
+        allData.push(parsed);
+      }
+      updateStats(1, totalPages);
+    }
+  } catch(e) { addLog('Ошибка: ' + e.message); running = false; }
+
+  if (!running) {
+    finishCollect(); return;
+  }
+
+  // Step 2: distribute remaining pages across keys in parallel
+  // Key 0: pages 2, 2+N, 2+2N...
+  // Key 1: pages 3, 3+N, 3+2N...
+  // Key 2: pages 4, 4+N, 4+2N...
+  const N = keys.length;
+
+  const workers = keys.map((key, ki) => (async () => {
+    let page = 2 + ki;
+    while (running && page <= totalPages) {
+      try {
+        const resp = await fetchPage(key, page);
+        if (resp.status === 429) {
+          addLog(`Ключ${ki+1}: rate limit, ждём 15 сек...`);
+          await sleep(15000); continue;
+        }
+        if (!resp.ok) { addLog(`Ключ${ki+1}: ошибка ${resp.status}`); break; }
+
+        const data = await resp.json();
+        const positions = data?.data?.positions || data?.positions || [];
+        let stopped = false;
+
+        for (const pos of positions) {
+          const parsed = parsePos(pos);
+          if (!parsed) continue;
+          const dc = checkDate(parsed);
+          if (dc === 'skip') continue;
+          if (dc === 'stop') { stopped = true; break; }
+          allData.push(parsed);
+        }
+
+        addLog(`К${ki+1} стр.${page}/${totalPages}: +${positions.length} | итого: ${allData.length}`);
+        updateStats(page, totalPages);
+        applyFilters();
+
+        if (stopped) { addLog(`Ключ${ki+1}: вышли за диапазон дат.`); running = false; break; }
+      } catch(e) { addLog(`Ключ${ki+1}: ${e.message}`); }
+
+      page += N;
+      if (running && page <= totalPages) await sleep(12500);
+    }
+  })());
+
+  await Promise.all(workers);
+  finishCollect();
+}
+
+function updateStats(page, totalPages) {
+  const uw = new Set(allData.map(p => p.owner)).size;
+  el('st_total').textContent   = allData.length;
+  el('st_wallets').textContent = uw;
+  setBar(Math.min((allData.length / Math.max(totalPages * 20, 1)) * 100, 99));
+}
+
+function finishCollect() {
+  running = false;
+  el('btn_start').disabled = false;
+  el('btn_stop').disabled  = true;
+  setBar(100);
+  const uw = new Set(allData.map(p => p.owner)).size;
+  el('st_total').textContent   = allData.length;
+  el('st_wallets').textContent = uw;
+  el('st_status').textContent  = allData.length ? '✓' : '✗';
+  addLog(`Готово! Позиций: ${allData.length} | Кошельков: ${uw}`);
+  if (allData.length) el('btn_csv').style.display = 'inline-block';
+  applyFilters();
+}
+
+// ══════════════════════════════════════
+// FILTERS (instant, no API calls)
+// ══════════════════════════════════════
+function calcDur() {
+  const h = parseFloat(el('f_dur_h').value) || 0;
+  const m = parseFloat(el('f_dur_m').value) || 0;
+  const s = parseFloat(el('f_dur_s').value) || 0;
+  const total = h + m/60 + s/3600;
+  el('f_dur_total').value = total > 0 ? total.toFixed(6) : '';
+  applyFilters();
+}
+
+function getRange(valId, tolId) {
+  const raw = el(valId)?.value?.trim();
+  if (!raw) return null;            // пустое поле — фильтр не активен
+  const val = parseFloat(raw);
+  const tol = parseFloat(el(tolId)?.value) || 20;
+  if (isNaN(val)) return null;
+  const m = Math.abs(val) * (tol / 100);
+  return { min: val - m, max: val + m };
+}
+
+function applyFilters() {
+  // Build filter ranges
+  const rProfit = getRange('f_profit',    'f_profit_tol');
+  const rTvl    = getRange('f_tvl',       'f_tvl_tol');
+  const durRaw  = parseFloat(el('f_dur_total')?.value);
+  const durTol  = parseFloat(el('f_dur_tol')?.value) || 20;
+  const rDur    = (!isNaN(durRaw) && durRaw > 0)
+    ? { min: Math.max(0, durRaw - durRaw*(durTol/100)), max: durRaw + durRaw*(durTol/100) }
+    : null;
+
+  // Update range displays
+  if (rProfit) el('r_profit').textContent = `$${rProfit.min.toFixed(2)} — $${rProfit.max.toFixed(2)}`;
+  else el('r_profit').textContent = '—';
+
+  if (rTvl) el('r_tvl').textContent = `$${rTvl.min.toFixed(2)} — $${rTvl.max.toFixed(2)}`;
+  else el('r_tvl').textContent = '—';
+
+  if (rDur) el('r_dur').textContent = `${fmtH(rDur.min)} — ${fmtH(rDur.max)}`;
+  else el('r_dur').textContent = '—';
+
+  const hasFilter = rProfit || rTvl || rDur;
+
+  if (!hasFilter) {
+    filtered = [...allData];
+    el('filter_info').textContent = '';
+  } else {
+    filtered = allData.filter(p => {
+      if (rProfit && (p.profitUsd < rProfit.min || p.profitUsd > rProfit.max)) return false;
+      if (rTvl    && (p.tvlUsd    < rTvl.min    || p.tvlUsd    > rTvl.max))    return false;
+      if (rDur    && (p.ageHour   < rDur.min     || p.ageHour   > rDur.max))    return false;
+      return true;
+    });
+    const active = [rProfit&&'Profit',rTvl&&'TVL',rDur&&'Время'].filter(Boolean).join(', ');
+    el('filter_info').textContent = `Активные фильтры: ${active}`;
+  }
+
+  el('st_filtered').textContent = filtered.length;
+  renderTable();
+}
+
+function clearFilters() {
+  ['f_profit','f_tvl','f_dur_h','f_dur_m','f_dur_s','f_dur_total'].forEach(id => {
+    const e = el(id); if(e) e.value = '';
+  });
+  ['f_profit_tol','f_tvl_tol','f_dur_tol'].forEach(id => {
+    const e = el(id); if(e) e.value = '20';
+  });
+  ['r_profit','r_tvl','r_dur'].forEach(id => {
+    const e = el(id); if(e) e.textContent = '—';
+  });
+  el('filter_info').textContent = '';
+  applyFilters();
+}
+
+// ══════════════════════════════════════
+// TABLE RENDER + SORT
+// ══════════════════════════════════════
+function sortBy(field) {
+  if (sortField === field) sortDir *= -1;
+  else { sortField = field; sortDir = -1; }
+  renderTable();
+}
+
+function renderTable() {
+  const q = (el('tbl_search').value || '').toLowerCase();
+
+  let rows = filtered
+    .filter(p => !q || p.owner.toLowerCase().includes(q))
+    .sort((a, b) => sortDir * ((b[sortField] || 0) - (a[sortField] || 0)));
+
+  el('tbl_found').textContent = rows.length + ' позиций';
+
+  if (!rows.length) {
+    el('tbody').innerHTML = `<tr><td colspan="8" class="empty"><div class="empty-ico">◎</div>${allData.length ? 'Нет совпадений с фильтрами' : 'Нажми "Загрузить позиции"'}</td></tr>`;
+    return;
+  }
+
+  el('tbody').innerHTML = rows.map((p, i) => {
+    const pc  = p.profitUsd > 0 ? 'pnl-pos' : p.profitUsd < 0 ? 'pnl-neg' : '';
+    const pnlC = p.pnlUsd > 0 ? 'color:var(--green)' : p.pnlUsd < 0 ? 'color:var(--red)' : '';
+    const st  = p.status === 'Open'
+      ? '<span style="color:var(--green);font-size:11px;">Open</span>'
+      : p.status === 'Close'
+      ? '<span style="color:var(--text2);font-size:11px;">Closed</span>'
+      : `<span style="font-size:11px;">${p.status}</span>`;
+    return `<tr>
+      <td class="v">${i+1}</td>
+      <td class="mono v" title="${p.owner}">
+        <a href="https://solscan.io/account/${p.owner}" target="_blank"
+           style="color:var(--gold);text-decoration:none;">${p.owner.slice(0,10)}...${p.owner.slice(-8)}</a>
+      </td>
+      <td class="${pc}">${p.profitUsd >= 0 ? '+' : ''}$${p.profitUsd.toFixed(2)}</td>
+      <td class="v">$${p.tvlUsd.toFixed(0)}</td>
+      <td style="${pnlC}">${p.pnlUsd >= 0 ? '+' : ''}$${p.pnlUsd.toFixed(2)}</td>
+      <td class="v">${fmtH(p.ageHour)}</td>
+      <td class="v" style="font-size:11px;">${p.pairName}</td>
+      <td>${st}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════
+function downloadCsv() {
+  const q = (el('tbl_search').value || '').toLowerCase();
+  const rows = filtered
+    .filter(p => !q || p.owner.toLowerCase().includes(q))
+    .sort((a, b) => sortDir * ((b[sortField] || 0) - (a[sortField] || 0)));
+
+  const csv = 'owner,profit_usd,tvl_usd,pnl_usd,pnl_pct,fee_usd,age_hours,status,pair,created_at,close_at\n' +
+    rows.map(p =>
+      `${p.owner},${p.profitUsd.toFixed(2)},${p.tvlUsd.toFixed(2)},${p.pnlUsd.toFixed(2)},${p.pnlPct.toFixed(2)},${p.feeUsd.toFixed(2)},${p.ageHour.toFixed(4)},${p.status},"${p.pairName}",${p.createdAt},${p.closeAt}`
+    ).join('\n');
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'meteora_lp_finder.csv';
+  a.click();
+}
+</script>
+<script src="./Meteora LP Finder_files/replit-pill.global.js.Без названия" data-repl-id="42c30b9a-cb14-485f-90eb-8ba21ba9123c"></script>
+
+<div id="replit-pill-host"><template shadowrootmode="closed"><style>
+        #replit-pill {
+          position: fixed;
+          bottom: 48px;
+          right: 48px;
+          border-radius: 120px;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 12px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          z-index: 1000000;
+          white-space: nowrap;
+          cursor: pointer;
+          overflow: hidden;
+          background-color: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(6px);
+          -webkit-backdrop-filter: blur(6px);
+          color: #f0f2f6;
+          box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.05), 1px 1px 1px 0px rgba(255, 255, 255, 0.1);
+          transition: transform 0.2s ease;
+        }
+        #replit-pill:hover {
+          transform: scale(1.05);
+        }
+        #replit-pill .shimmer {
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          transition: transform 0.7s ease-in-out;
+          background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+          pointer-events: none;
+        }
+        #replit-pill:hover .shimmer {
+          transform: translateX(100%);
+        }
+        #replit-pill .badge-content {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          position: relative;
+          flex: 0 0 auto;
+        }
+        #replit-pill .replit-logo {
+          color: #f0f2f6;
+        }
+        #replit-pill .replit-text {
+          font-weight: 500;
+          line-height: 20px;
+          color: #f0f2f6;
+        }
+        #replit-pill .close-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+          flex: 0 0 auto;
+          border-radius: 64px;
+          width: 12px;
+          height: 12px;
+          min-width: 0;
+          cursor: pointer;
+          border: none;
+          box-sizing: border-box;
+          background-color: transparent;
+          transition: background-color 0.2s ease;
+        }
+        #replit-pill .close-button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+        #replit-pill .close-button:focus-visible {
+          outline: 1px solid #e6e9ef;
+          outline-offset: 1px;
+        }
+        #replit-pill .close-icon {
+          width: 8px;
+          height: 8px;
+          color: #e6e9ef;
+        }
+      </style><div id="replit-pill"><div class="shimmer"></div><div class="badge-content"><svg width="10.67" height="16" viewBox="0 0 50 75" fill="none" class="replit-logo">
+        <path d="M25 19.995C25 20.0375 25 20.0575 25 20.085C25.015 21.34 25.5475 22.6275 26.425 23.525C26.445 23.545 26.4475 23.5475 26.45 23.55C26.485 23.585 26.5025 23.6025 26.54 23.6375C27.4225 24.485 28.6775 25.005 29.9025 25.03C29.9525 25.03 29.9975 25.03 30.0825 25.03H42C44.8 25.03 46.2 25.03 47.27 25.575C48.21 26.055 48.975 26.82 49.455 27.76C50 28.83 50 30.23 50 33.03V42.03C50 44.83 50 46.23 49.455 47.3C48.975 48.24 48.21 49.005 47.27 49.485C46.2 50.03 44.8 50.03 42 50.03H29.9275C28.6425 50.0325 27.3225 50.58 26.4125 51.485C26.4075 51.49 26.4775 51.42 26.45 51.4475C26.445 51.4525 26.4425 51.4525 26.4225 51.475C25.545 52.3725 25.0125 53.6575 24.9975 54.9125C24.9975 54.94 24.9975 54.9625 24.9975 55.0025V67.0575C24.9975 69.8575 24.9975 71.2575 24.4525 72.3275C23.9725 73.2675 23.2075 74.0325 22.2675 74.5125C21.1975 75.0575 19.7975 75.0575 16.9975 75.0575H7.9975C5.1975 75.0575 3.7975 75.0575 2.7275 74.5125C1.7875 74.0325 1.0225 73.2675 0.542498 72.3275C-0.00250244 71.2575 -0.00250244 69.8575 -0.00250244 67.0575V58.0575C-0.00250244 55.2575 -0.00250244 53.8575 0.542498 52.7875C1.0225 51.8475 1.7875 51.0825 2.7275 50.6025C3.7975 50.0575 5.1975 50.0575 7.9975 50.0575H19.7225C19.9 50.0575 19.9875 50.0575 20.08 50.055C21.2475 50.0125 22.4375 49.52 23.295 48.7225C23.3625 48.66 23.4125 48.61 23.5125 48.51C23.55 48.4725 23.5675 48.455 23.6025 48.42C24.455 47.5325 24.9725 46.2825 24.9975 45.0525C24.9975 45.0025 24.9975 44.96 24.9975 44.875V30.12C24.9975 30.0325 24.9975 29.99 24.9975 29.94C24.9725 28.71 24.455 27.46 23.6025 26.575C23.5675 26.54 23.55 26.52 23.5125 26.4825C23.475 26.445 23.4575 26.4275 23.42 26.3925C22.5325 25.54 21.2825 25.0225 20.0525 24.9975C20.0025 24.9975 19.96 24.9975 19.875 24.9975H7.9975C5.1975 24.9975 3.7975 24.9975 2.7275 24.4525C1.7875 23.9725 1.0225 23.2075 0.542498 22.2675C-0.00250244 21.1975 -0.00250244 19.7975 -0.00250244 16.9975V7.9975C-2.44146e-06 5.2 -2.44379e-06 3.8 0.544998 2.73C1.025 1.79 1.79 1.025 2.73 0.545C3.8 0 5.2 0 8 0H17C19.8 0 21.2 0 22.27 0.545C23.21 1.025 23.975 1.79 24.455 2.73C25 3.8 25 5.2 25 8V19.995Z" fill="currentColor"></path>
+      </svg><div class="replit-text">Made with Replit</div></div><button class="close-button" aria-label="Close"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="close-icon">
+        <path d="M18 6 6 18"></path>
+        <path d="m6 6 12 12"></path>
+      </svg></button></div></template></div></body></html>
